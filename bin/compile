@@ -3,7 +3,7 @@
 
 echo "X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
 X19fICAgX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX1
-9fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KNyAgICAgNzcg
+9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXw0KNyAgICAgNzcg
 IDcgIDc3ICBfICA3NyAgICAgNzcgICAgIDc3ICA3ICAgNyAgXyAgNz
 cgIF8gIDc3ICAgICA3NyAgXyAgNzcgIF8gIDc3ICAgICAgNzcgICAg
 IDc3ICBfICA3NyAgNyAgNw0KfCAgLSAgfHwgICEgIHx8ICAgIF98fC
@@ -54,10 +54,9 @@ function indent() {
 }
 
 # Config
-# Hardcoded available stable versions
-# Use it to manually update the version as per https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html
-VERSION_FIREFOX=82.0.3
-VERSION_GECKODRIVER=0.28.0
+# Updated versions for better compatibility with heroku-24
+VERSION_FIREFOX=120.0
+VERSION_GECKODRIVER=0.34.0
 LANG=en-US
 PLATFORM=linux64
 
@@ -71,7 +70,7 @@ BUILDPACK_GECKODRIVER_PACKAGE="https://github.com/mozilla/geckodriver/releases/d
 
 # Install correct dependencies according to $STACK	
 case "$STACK" in	
-  "heroku-16" | "heroku-18" | "heroku-20")	
+  "heroku-16" | "heroku-18" | "heroku-20" | "heroku-22" | "heroku-24")	
     PACKAGES="	
       libappindicator1	
       libasound2	
@@ -97,9 +96,19 @@ case "$STACK" in
       libxtst6	
       fonts-liberation	
     "
+    # Additional packages for heroku-24 (Ubuntu 24.04)
+    if [[ "$STACK" == "heroku-24" ]]; then
+      PACKAGES="$PACKAGES
+        libgbm1
+        libdrm2
+        libxrandr2
+        libxss1
+        libasound2t64
+      "
+    fi
     ;;	
   *)	
-    error "Heroku stack must be 'heroku-16', heroku-18 or 'heroku-20'"	
+    error "Heroku stack must be 'heroku-16', 'heroku-18', 'heroku-20', 'heroku-22', or 'heroku-24'"	
 esac
 
 if [ ! -f $CACHE_DIR/PURGED_CACHE_V1 ]; then
